@@ -41,10 +41,10 @@ Golang + Gin + Auth(JWT)
 ### データ定義
 | テーブル名 | 概要 |
 |-----------|------------|
-| [users](https://github.com/chalmeal/go-gin-auth/blob/master/.doc/auth/App/App-Auth.md) | ユーザーテーブル。認証情報の管理を含む。 |
-| [books](https://github.com/chalmeal/go-gin-auth/blob/master/.doc/books/books.md) | 書籍マスタテーブル。 |
+| [users](https://github.com/chalmeal/go-gin-auth/blob/master/.doc/data/users.md) | ユーザーテーブル、認証情報の管理を含む|
+| [books](https://github.com/chalmeal/go-gin-auth/blob/master/.doc/data/books.md) | 書籍マスタテーブル |
 
-### 仕様書
+### 仕様
 | 書名 | 概要 |
 |-----------|------------|
-| 認証認可 | ユーザー認証をする機能について。 |
+| 認証認可 | ユーザー認証をする機能について |
