@@ -48,3 +48,6 @@ Golang + Gin + Auth(JWT)
 | 書名 | 概要 |
 |-----------|------------|
 | 認証認可 | ユーザー認証をする機能について |
+
+## その他
+Qiita: https://qiita.com/chalmeal/items/740bf98c64a9a341da54#%E6%88%90%E6%9E%9C%E7%89%A9
