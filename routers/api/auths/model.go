@@ -35,6 +35,14 @@ func (u *users) getAccessTokenById(id string) *users {
 	return &users
 }
 
+func (u *users) regUser(p users) error {
+	err := db.Create(&p).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 type getUserParam struct {
 	UserId   string `json:"userId" binding:"required"`
 	Password string `json:"password" binding:"required"`

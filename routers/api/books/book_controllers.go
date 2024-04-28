@@ -37,15 +37,15 @@ func registerBook(c *gin.Context) {
 		response.Res(c, http.StatusBadRequest, err)
 		return
 	}
-	book := books{
+	b := books{
 		BookId: p.BookId,
 		Name:   p.Name,
 		Author: p.Author,
 	}
-	result := db.Create(&book)
-	if result.Error != nil {
-		log.Printf("Register book error : %s", result.Error)
-		response.Res(c, http.StatusInternalServerError, result.Error)
+	err := rep.regBook(b)
+	if err != nil {
+		log.Printf("Register book error : %s", err)
+		response.Res(c, http.StatusInternalServerError, err)
 		return
 	}
 

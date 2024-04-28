@@ -89,15 +89,15 @@ func registerUser(c *gin.Context) {
 		response.Res(c, http.StatusBadRequest, err)
 		return
 	}
-	users := users{
+	u := users{
 		UserId:   p.UserId,
 		Name:     p.Name,
 		Password: hashPW(p.Password),
 	}
-	result := db.Create(&users)
-	if result.Error != nil {
-		log.Printf("Register users error : %s", result.Error)
-		response.Res(c, http.StatusInternalServerError, result.Error)
+	err := rep.regUser(u)
+	if err != nil {
+		log.Printf("Register users error : %s", err)
+		response.Res(c, http.StatusInternalServerError, err)
 		return
 	}
 

@@ -20,6 +20,14 @@ func (b *books) getAll() *[]books {
 	return &books
 }
 
+func (b *books) regBook(p books) error {
+	err := db.Create(&p).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 type regBooksParam struct {
 	BookId string `json:"bookId" binding:"required"`
 	Name   string `json:"name" binding:"required"`
