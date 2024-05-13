@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"go-gin-auth/common/connect"
 	"go-gin-auth/common/response"
+	"go-gin-auth/common/sessions"
 	"go-gin-auth/config"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -17,7 +17,8 @@ import (
 )
 
 var (
-	db = connect.DbConnect()
+	db   = connect.DbConnect()
+	sess sessions.SessionInfo
 )
 
 func setUp() {
@@ -28,16 +29,13 @@ func VerifyAccessToken(c *gin.Context) {
 	token := c.GetHeader("Authorization")
 	t, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			sess.Clear(c)
 			return nil, fmt.Errorf("unexpected signing method: %s", t.Header["alg"])
 		}
-		secret, err := config.Cfg.Section("jwt").GetKey("JWT_SECRET_KEY")
-		if err != nil {
-			return nil, nil
-		}
-		return []byte(secret.String()), nil
+		return []byte(config.GetInitKey("security", "JWT_SECRET_KEY")), nil
 	})
 	if err != nil {
-		log.Print("AccessToken verification failed.")
+		sess.Clear(c)
 		response.Res(c, http.StatusInternalServerError, err)
 		return
 	}
@@ -45,9 +43,15 @@ func VerifyAccessToken(c *gin.Context) {
 	userId := t.Claims.(jwt.MapClaims)["user_id"]
 	ut := rep.getAccessTokenById(userId.(string))
 	if !t.Valid || ut.AccessToken != hashToken(t.Raw) {
-		err = errors.New("unauthorized accessToken")
-		log.Print(err)
-		response.Res(c, http.StatusUnauthorized, err)
+		sess.Clear(c)
+		response.Res(c, http.StatusUnauthorized, errors.New("unauthorized accessToken"))
+		return
+	}
+
+	state := t.Claims.(jwt.MapClaims)["state"]
+	if state != sess.GetState(c) {
+		sess.Clear(c)
+		response.Res(c, http.StatusUnauthorized, errors.New("csrf token verification failed"))
 		return
 	}
 }

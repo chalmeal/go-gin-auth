@@ -13,12 +13,8 @@ import (
 
 // db connect
 func DbConnect() *gorm.DB {
-	cnf, err := config.Cfg.Section("database").GetKey("DB_PATH")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	db, err := gorm.Open(mysql.Open(cnf.String()), &gorm.Config{})
+	cnf := config.GetInitKeyFatal("database", "DB_PATH")
+	db, err := gorm.Open(mysql.Open(cnf), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
 	}

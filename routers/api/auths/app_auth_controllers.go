@@ -1,11 +1,12 @@
 /**
-* auth controller
+* app auth controller
  */
 package auths
 
 import (
 	"errors"
 	"go-gin-auth/common/response"
+	"go-gin-auth/common/sessions"
 	"go-gin-auth/config"
 	"log"
 	"net/http"
@@ -19,8 +20,8 @@ var rep users
 
 // claim paramter
 type ClaimsRecord struct {
-	UserId   string `json:"user_id" validate:"required"`
-	Password string `json:"password" validate:"required"`
+	UserId string `json:"user_id" validate:"required"`
+	State  string `json:"state" validate:"required"`
 	jwt.RegisteredClaims
 }
 
@@ -44,21 +45,16 @@ func login(c *gin.Context) {
 		return
 	}
 
+	state := createState()
 	claims := &ClaimsRecord{
 		users.UserId,
-		users.Password,
+		state,
 		jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 6)),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	secret, err := config.Cfg.Section("jwt").GetKey("JWT_SECRET_KEY")
-	if err != nil {
-		log.Printf("Login error : %s", err)
-		response.Res(c, http.StatusInternalServerError, err)
-		return
-	}
-	t, err := token.SignedString([]byte(secret.String()))
+	t, err := token.SignedString([]byte(config.GetInitKey("security", "JWT_SECRET_KEY")))
 	if err != nil {
 		log.Printf("Login error : %s", err)
 		response.Res(c, http.StatusInternalServerError, err)
@@ -70,7 +66,15 @@ func login(c *gin.Context) {
 		return
 	}
 
-	r := map[string]string{"AccessToken": t}
+	info := &sessions.SessionInfo{
+		UserId: users.UserId,
+		State:  state,
+	}
+	sess.Set(c, info)
+
+	r := map[string]string{
+		"AccessToken": t,
+	}
 
 	response.Res(c, http.StatusOK, r)
 }

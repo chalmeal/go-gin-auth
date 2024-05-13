@@ -9,7 +9,7 @@ import "gorm.io/gorm"
 type books struct {
 	BookId string `gorm:"size:50;not null;unique" json:"book_id"`
 	Name   string `gorm:"size:50;not null" json:"name"`
-	Author string `gorm:"size:50" json:"author"`
+	Author string `gorm:"size:50;not null" json:"author"`
 	// timezone is UTC
 	gorm.Model
 }
